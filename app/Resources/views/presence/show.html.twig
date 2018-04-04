@@ -1,5 +1,31 @@
 {% extends 'base.html.twig' %}
 
-{% block body %}
+{% block title %}Lista obecności w miesiącu XX{% endblock %}
 
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h1 class="page-title">Lista obecności w miesiącu XX</h1>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>Dzień</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>A</td>
+                <td>B</td>
+                <td>C</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
