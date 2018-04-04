@@ -4,6 +4,7 @@
 namespace AppBundle\Entity;
 
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -23,6 +24,16 @@ class Student
      * @ORM\Column(type="string")
      */
     private $name;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\StudentPresence", mappedBy="student")
+     */
+    private $presences;
+
+    public function __construct()
+    {
+        $this->presences = new ArrayCollection();
+    }
 
     /**
      * @return integer
@@ -54,5 +65,13 @@ class Student
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return ArrayCollection|StudentPresence[]
+     */
+    public function getPresences()
+    {
+        return $this->presences;
     }
 }

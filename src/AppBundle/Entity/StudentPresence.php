@@ -35,6 +35,12 @@ class StudentPresence
     private $status;
 
     /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Student", inversedBy="presences")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     */
+    private $student;
+
+    /**
      * @return integer
      */
     public function getId()
@@ -97,4 +103,22 @@ class StudentPresence
     {
         $this->status = $status;
     }
+
+    /**
+     * @return Student
+     */
+    public function getStudent()
+    {
+        return $this->student;
+    }
+
+    /**
+     * @param Student $student
+     */
+    public function setStudent(Student $student)
+    {
+        $this->student = $student;
+    }
+
+
 }
