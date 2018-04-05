@@ -9,7 +9,7 @@
             </div>
             <div class="modal-body">
                 <div class="dropdown">
-                    <button class="btn btn-default btn-block dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <button class="btn btn-default btn-block dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         Wybierz miesiąc
                         <span class="caret"></span>
                     </button>
@@ -21,9 +21,54 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <a href="{{ path('presence_new') }}" class="btn btn-primary">Nowy uczeń</a>
+                <a id="submit" data-url="{{ path('presence_new') }}" class="btn btn-primary pull-left btn-block">Nowy uczeń</a>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        $(document).ready(function () {
+            $('#submit').click(function(e) {
+                e.preventDefault();
+
+                // submit button handling
+                $(this).addClass('disabled').html('Proszę czekać...');
+                $('#dropdownMenu').addClass('disabled');
+                // /submit button handling
+
+                // ajax call
+                var url = $(this).attr('data-url');
+
+                $.ajax({
+                    url: url,
+                    success: function (response) {
+                        if(response.status == 'success') {
+                            setTimeout(function(){ // Run toastr notification with success message
+                                    toastr.options = {
+                                        "positionClass": "toast-top-right",
+                                        "closeButton": true,
+                                        "progressBar": true,
+                                        "showEasing": "swing",
+                                        "timeOut": "6000"
+                                    };
+                                    toastr.success('<strong>Sukces! </strong> <br/><small>' + response.msg + '</small>');
+                                },500
+                            );
+
+                            $('#submit').removeClass('disabled').html('Nowy uczeń');
+                            $('#dropdownMenu').removeClass('disabled');
+                        }
+                    }
+                });
+                // /ajax call
+
+                return false;
+            });
+        });
+    </script>
 {% endblock %}

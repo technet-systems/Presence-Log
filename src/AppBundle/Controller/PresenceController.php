@@ -8,9 +8,20 @@ use AppBundle\Entity\Student;
 use AppBundle\Entity\StudentPresence;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Class PresenceController
+ *
+ * Contains all methods for handling Presence Log
+ *
+ * @package AppBundle\Controller
+ */
 class PresenceController extends Controller
 {
+    /**
+     * Constants below represent the presence status
+     */
     const PRESENT = 'O';
 
     const ABSENT = 'N';
@@ -18,6 +29,8 @@ class PresenceController extends Controller
     const BELATED = 'S';
 
     /**
+     * Selects all months to choose them in a start template
+     *
      * @Route("/", name="presence_index")
      */
     public function indexAction()
@@ -33,6 +46,9 @@ class PresenceController extends Controller
     }
 
     /**
+     * On the basis of the given month, the appropriate number of days and all students
+     * with their presence are selected in the URL
+     *
      * @Route("/show/{month}", name="presence_show")
      */
     public function showAction($month)
@@ -78,6 +94,41 @@ class PresenceController extends Controller
     }
 
     /**
+     * This method allows to modify a particular status on a given day for a given student
+     * (used by the plugin 'x-editable'
+     *
+     * @Route("/edit", name="presence_edit")
+     */
+    public function editAction()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $presence = $em->getRepository('AppBundle:StudentPresence')->find($_POST['pk']);
+
+        $data = [];
+
+        if (!$presence) {
+            $data = [
+                'status'    => 'error',
+                'msg'       => 'Coś poszło nie tak. Spróbuj jeszcze raz.'
+            ];
+        }
+
+        $data = [
+            'status'    => 'success',
+            'msg'       => 'Zmieniono status!'
+        ];
+
+        $presence->setStatus($_POST['value']);
+        $em->flush();
+
+        return new JsonResponse($data);
+    }
+
+    /**
+     * This method allows you to create a new student with a random name and add its id in the 'student_presence' table
+     * for the whole year (using by ajax call in start templete - button 'Nowy uczeń')
+     *
      * @Route("/new", name="presence_new")
      */
     public function newAction()
@@ -149,6 +200,11 @@ class PresenceController extends Controller
             $em->flush();
         }
 
-        dump($presence->getId());die;
+        $data = [
+            'status'    => 'success',
+            'msg'       => 'Dodano nowego studenta!'
+        ];
+
+        return new JsonResponse($data);
     }
 }

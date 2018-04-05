@@ -1,31 +1,96 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Lista obecności w miesiącu XX{% endblock %}
+{% set counter = 1 %}
+
+{% block title %}Dziennik - miesiąc {{ month }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <!-- X-editable -->
+    <link rel="stylesheet" href="{{ asset('assets/plugins/x-editable/css/bootstrap-editable.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container">
+    {% include 'presence/_nav.html.twig' %}
+
+    <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12">
-                <h1 class="page-title">Lista obecności w miesiącu XX</h1>
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Uczeń</th>
+                        {% for day in days %}
+                            <th>{{ day.day }}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for student in students %}
+                        <tr>
+                            <th scope="row">{{ counter }}</th>
+                            <td>{{ student.name }}</td>
+                            {% for presence in student.presences.snapshot %}
+                                {% if presence.month == month %}
+                                    <td>
+                                        <!--<a href="#" class="editable" data-type="select" data-pk="{{ presence.id }}" data-url="{{ path("presence_edit") }}" data-title="Stan" data-name="presence" data-value="{{ presence.status }}" data-source="[{'value':'O', 'text':'Obecny'},{'value':'N', 'text':'Nieobecny'},{'value':'S', 'text':'Spóźniony'}]">{{ presence.status }}</a>-->
+                                        <a href="#" class="editable" data-type="select" data-pk="{{ presence.id }}" data-url="{{ path("presence_edit") }}" data-title="Stan" data-name="presence" data-value="{{ presence.status }}" data-source="[{% for key,value in capabilities %}{'value':'{{ key }}', 'text':'{{ value }}'},{% endfor %}]">{{ presence.status }}</a>
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        {% set counter = counter + 1 %}
+                    {% endfor %}
+                    {% set counter = 1 %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-    <div class="container-fluid">
-        <table class="table table-hover">
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>Student</th>
-                <th>Dzień</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>A</td>
-                <td>B</td>
-                <td>C</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <!-- X-editable -->
+    <script src="{{ asset('assets/plugins/x-editable/js/bootstrap-editable.min.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('.editable').editable({
+                emptytext: 'Brak',
+
+                success: function(response) {
+                    if(response.status == 'success') {
+                        setTimeout(function(){ // Run toastr notification with success message
+                                toastr.options = {
+                                    "positionClass": "toast-top-right",
+                                    "closeButton": true,
+                                    "progressBar": true,
+                                    "showEasing": "swing",
+                                    "timeOut": "6000"
+                                };
+                                toastr.success('<strong>Sukces! </strong> <br/><small>' + response.msg + '</small>');
+                            },500
+                        );
+                    } else {
+                        setTimeout(function(){ // Run toastr notification with failture message
+                                toastr.options = {
+                                    "positionClass": "toast-top-right",
+                                    "closeButton": true,
+                                    "progressBar": true,
+                                    "showEasing": "swing",
+                                    "timeOut": "6000"
+                                };
+                                toastr.warning('<strong>Błąd! </strong> <br/><small>' + data.msg + '</small>');
+                            },500
+                        )
+                    }
+                }
+
+            });
+        });
+    </script>
 {% endblock %}
